@@ -89,8 +89,7 @@ public class StuffDisplay extends JComponent implements MouseListener,
         return mouseLoc;
     }
 
-    public int getTool() {
-        return tool;
+    public int getTool() { return tool;
     }
 
     public void setColor(int row, int col, Color color) {
