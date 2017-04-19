@@ -1,10 +1,15 @@
 import java.awt.Color;
 import java.util.Random;
+import java.awt.color.ColorSpace;
 
 public class StuffLab {
     // CONSTANT DECLARATIONS
     public static final int ROWS = 150;
     public static final int COLS = 150;
+    public Color[] color;
+    public Random side = new Random();
+    public int choice = side.nextInt(2);
+    public int choicee = side.nextInt(2);
 
     public static void main(String[] args) {
         StuffLab lab = new StuffLab(ROWS, COLS);
@@ -20,7 +25,7 @@ public class StuffLab {
     public static final int WALLY = 5;
     public static final int BRICK = 6;
     public static final int MISSILE = 7;
-    public static final int SLUDGE = 8;
+    public static final int MISSILE_ = 8;
     public static final int LAVA = 9;
 
 
@@ -33,22 +38,47 @@ public class StuffLab {
     {
         String[] names;
         names = new String[10]; // MUST CHANGE LENGTH IF YOU WANT TO ADD SOMETHING !!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        names[EMPTY] = "Empty";
+        names[EMPTY] = "ERASE";
         names[SAND] = "Sand ";
         names[WATER] = "Water";
         names[GAS] = "Gas";
-        names[WALL] = "Wall (.)";
+        names[WALL] = "Wall (-)";
         names[WALLY] = "Wall (+)";
         names[BRICK] = "Brick";
-        names[MISSILE] = "Missile";
-        names[SLUDGE] = "Sludge";
+        names[MISSILE_] = "Missile";
         names[LAVA] = "Lava";
         display = new StuffDisplay("Falling Sand", numRows, numCols, names);
         grid = new int[numRows][numCols];
+
+        color = new Color[10];
+        color[EMPTY] = new Color(0, 0, 0);
+        color[SAND] = new Color(255, 241, 150);
+        color[WATER] = new Color(150, 239, 255);
+        color[GAS] = new Color(151, 158, 158);
+        color[WALL] = new Color(224, 224, 224);
+        color[WALLY] = new Color(224, 224, 224);
+        color[BRICK] = new Color(181, 110, 88);
+        color[MISSILE] = new Color(102, 102, 102);
+        color[MISSILE_] = new Color(90, 90, 90);
+        color[LAVA] = new Color(255, 59, 0);
     }
 
     // CALLED ON CLICK OF SCREEN
     private void locationClicked(int row, int col, int tool) {
+
+        if (tool == EMPTY && row != ROWS-1 && col != 0 && col != COLS -1){
+            grid[row][col] = tool;
+            grid[row+1][col] = tool;
+            grid[row-1][col] = tool;
+            grid[row][col+1] = tool;
+            grid[row][col-1] = tool;
+            grid[row+1][col+1] = tool;
+            grid[row-1][col-1] = tool;
+            grid[row-1][col+1] = tool;
+            grid[row+1][col-1] = tool;
+            return;
+        }
+
         if (grid[row][col] != EMPTY && grid[row][col] != WATER && grid[row][col] != GAS){ // if neither empty nor water nor gas
             return;
         }
@@ -59,9 +89,60 @@ public class StuffLab {
             grid[row-1][col] = tool;
             grid[row][col+1] = tool;
             grid[row][col-1] = tool;
+            grid[row+1][col+1] = tool;
+            grid[row-1][col-1] = tool;
+            grid[row-1][col+1] = tool;
+            grid[row+1][col-1] = tool;
+            return;
         }
+
+        if (tool == WALL){
+            grid[row][col] = tool;
+            return;
+        }
+
+        if (tool == MISSILE_ && row != 0 && row > 6 && col > 2 && col < COLS -1){
+            choice = side.nextInt(20);
+            if (choice == 0){
+                createMissile(col, row);
+            }
+
+        }
+
         else{
             grid[row][col] = tool;
+            if( row > 2 && row < ROWS-2 && col > 2 && col < COLS -2) {
+                choice = side.nextInt(4);
+                if (choice == 0) {
+                    grid[row][col + 2] = tool;
+                }
+                if (choice == 1) {
+                    grid[row][col - 2] = tool;
+                }
+                if (choice == 2) {
+                    grid[row + 2][col] = tool;
+                }
+                if (choice == 3) {
+                    grid[row + 2][col] = tool;
+                }
+            }
+            if( row > 4 && row < ROWS-4 && col > 4 && col < COLS -4) {
+                choice = side.nextInt(4);
+                if (choice == 0) {
+                    grid[row][col + 4] = tool;
+                }
+                if (choice == 1) {
+                    grid[row][col - 4] = tool;
+                }
+                if (choice == 2) {
+                    grid[row + 4][col] = tool;
+                }
+                if (choice == 3) {
+                    grid[row + 4][col] = tool;
+                }
+                return;
+            }
+
         }
         // could get more creative with this later
         // spots could appear around an area like larger brush
@@ -71,25 +152,39 @@ public class StuffLab {
     public void updateDisplay() {
         for (int row=0; row < ROWS; row++) {
             for (int column=0; column < COLS; column++) {
-                if (grid[row][column]==(EMPTY)) {display.setColor(row, column, Color.black);}
-                else if (grid[row][column]==(SAND)){display.setColor(row, column, Color.yellow);}
-                else if (grid[row][column]==(WATER)){display.setColor(row, column, Color.blue);}
-                else if (grid[row][column]==(WALL)){display.setColor(row, column, Color.white);}
-                else if (grid[row][column]==(WALLY)){display.setColor(row, column, Color.white);}
-                else if (grid[row][column]==(GAS)){display.setColor(row, column, Color.darkGray);}
-                // for error-finding purposes, set anything else to red
-                else {display.setColor(row, column, Color.red);}
+                display.setColor(row, column, color[grid[row][column]]);
             }
         }
+    }
+
+    public void createMissile(int tipx, int tipy) {
+        grid[tipy-6][tipx+1] = EMPTY;
+        grid[tipy-6][tipx-1] = EMPTY;
+        grid[tipy-5][tipx] = EMPTY;
+        grid[tipy-7][tipx+1] = EMPTY;
+        grid[tipy-7][tipx-1] = EMPTY;
+        grid[tipy-6][tipx] = EMPTY;
+
+        grid[tipy][tipx] = MISSILE_;
+        grid[tipy-1][tipx] = MISSILE;
+        grid[tipy-2][tipx] = MISSILE;
+        grid[tipy-2][tipx+1] = MISSILE;
+        grid[tipy-2][tipx-1] = MISSILE;
+        grid[tipy-3][tipx] = MISSILE;
+        grid[tipy-3][tipx+1] = MISSILE;
+        grid[tipy-3][tipx-1] = MISSILE;
+        grid[tipy-4][tipx] = MISSILE;
+        grid[tipy-4][tipx+1] = MISSILE;
+        grid[tipy-4][tipx-1] = MISSILE;
+        grid[tipy-5][tipx+1] = MISSILE;
+        grid[tipy-5][tipx-1] = MISSILE;
     }
 
     //called repeatedly.
     //causes one random particle to maybe do something.
     public void step(int x, int y) {
         // NOTE TO SELF: Remember that we are in form grid[y][x]
-
         // if sand
-
         switch (grid[y][x]) {
             case SAND:
                 // if at bottom, do nothing
@@ -110,6 +205,44 @@ public class StuffLab {
                     grid[y + 1][x] = SAND;
                     grid[y][x] = WATER;
                     return;
+                }
+
+
+                // makes sand fall more naturally if doesn't always update
+                choice = side.nextInt(15);
+                if (choice == 0) {
+                    if (y != (ROWS - 2) && x != (COLS - 1)) {
+                        if (grid[y + 1][x] == SAND && grid[y + 2][x] == SAND) {
+                            if (grid[y + 1][x + 1] == EMPTY) {
+                                grid[y + 1][x] = EMPTY;
+                                grid[y + 1][x + 1] = SAND;
+                                return;
+
+
+                            }
+                            if (grid[y + 1][x + 1] == WATER) {
+                                grid[y + 1][x] = WATER;
+                                grid[y + 1][x + 1] = SAND;
+                                return;
+
+                            }
+                        }
+                    }
+                    if (y != (ROWS - 2) && x != (0)) {
+                        if (grid[y + 1][x] == SAND && grid[y + 2][x] == SAND) {
+                            if (grid[y + 1][x - 1] == EMPTY) {
+                                grid[y + 1][x] = EMPTY;
+                                grid[y + 1][x - 1] = SAND;
+                                return;
+
+                            }
+                            if (grid[y + 1][x - 1] == WATER) {
+                                grid[y + 1][x] = WATER;
+                                grid[y + 1][x - 1] = SAND;
+                                return;
+                            }
+                        }
+                    }
                 }
                 break;
 
@@ -163,8 +296,7 @@ public class StuffLab {
                         return;
                     }
                     // else, choose randomly between left and right movement
-                    Random side = new Random();
-                    int choice = side.nextInt(2);
+                    choice = side.nextInt(2);
                     // if 0, preference towards leftward movement
                     if (choice == 0) {
                         if (grid[y][x - 1] == EMPTY) {
@@ -228,10 +360,9 @@ public class StuffLab {
                     }
 
                     // else, choose randomly between left and right movement
-                    Random side1 = new Random();
-                    int doice = side1.nextInt(2);
+                    choice = side.nextInt(2);
                     // if 0, preference towards leftward movement
-                    if (doice == 0) {
+                    if (choice == 0) {
                         if (grid[y][x - 1] == EMPTY) {
                             grid[y][x - 1] = GAS;
                             grid[y][x] = EMPTY;
@@ -264,11 +395,14 @@ public class StuffLab {
                 break;
             case MISSILE:
                 break;
-            case SLUDGE:
+            case MISSILE_:
+                if(y != ROWS-1){
+                    createMissile(x, y+1);
+                }
                 break;
+
             case LAVA:
-                Random side1 = new Random();
-                int choice = side1.nextInt(4);
+                choice = side.nextInt(4);
                 if (choice == 0 || choice == 1 || choice == 2){
                     return;
                 }
@@ -276,7 +410,7 @@ public class StuffLab {
                 if (y == ROWS - 1) {
                     return;
                 }
-                // if nothing below water
+                // if nothing below lava
                 if (grid[y + 1][x] == EMPTY) {
                     // water falls
                     grid[y + 1][x] = LAVA;
@@ -284,15 +418,23 @@ public class StuffLab {
                     return;
                 }
 
-                // if gas below water
+                // if gas below lava
                 if (grid[y + 1][x] == GAS) {
-                    // water falls
+                    // lava falls
                     grid[y + 1][x] = LAVA;
                     grid[y][x] = GAS;
                     return;
                 }
 
-                // if something below water
+                // if water below lava
+                if (grid[y + 1][x] == WATER) {
+                    // lava falls
+                    grid[y + 1][x] = LAVA;
+                    grid[y][x] = WATER;
+                    return;
+                }
+
+                // if something below lava
                 if (grid[y + 1][x] != EMPTY) {
                     // if on sides, move away
                     if (x == 0 && grid[y][x + 1] == EMPTY) {
@@ -309,6 +451,15 @@ public class StuffLab {
                     if (x == 0 || x == COLS - 1) {
                         return;
                     }
+
+                    if (grid[y][x + 1] == WATER) {
+                        grid[y][x+1] = GAS;
+                    }
+
+                    if (grid[y][x - 1] == WATER) {
+                        grid[y][x-1] = GAS;
+                    }
+
                     // if otherwise locked in, stay
                     if (grid[y][x + 1] != EMPTY && grid[y][x - 1] != EMPTY) {
                         return;
